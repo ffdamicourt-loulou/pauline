@@ -1,0 +1,50 @@
+# Cache pour le site Pauline Guyon
+# Optimisation des performances via la mise en cache HTTP
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+
+    # Cache long pour les images (WebP, SVG)
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+
+    # Cache moyen pour le HTML (1 heure)
+    ExpiresByType text/html "access plus 1 hour"
+
+    # Cache long pour les polices (si vous en utilisez localement)
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+
+    # Cache pour les fichiers CSS/JS (si vous les extrayez un jour)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # En-têtes de cache pour le HTML
+    <FilesMatch "index\.html$">
+        Header set Cache-Control "public, max-age=3600"  # 1 heure
+    </FilesMatch>
+
+    # En-têtes de cache pour les images
+    <FilesMatch "\.(webp|svg)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"  # 1 an
+    </FilesMatch>
+</IfModule>
+
+# Compression Gzip pour les fichiers textuels
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript
+</IfModule>
+
+# Redirection HTTP vers HTTPS (si activé sur votre hébergement)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Protection contre le hotlinking (optionnel)
+# RewriteEngine On
+# RewriteCond %{HTTP_REFERER} !^https://ffdamicourt-loulou.github.io/ [NC]
+# RewriteCond %{HTTP_REFERER} !^$
+# RewriteRule \.(webp|svg)$ - [NC,F,L]
